@@ -13,10 +13,10 @@ lang, *rest = ARGV
 
 if lang =~ /--.*/
   lang = lang[2..-1]
-  lang = "rb" if lang == ""
+  lang = "default" if lang == ""
   args = rest
 else
-  lang = "rb"
+  lang = "default"
   args = ARGV
 end
 langre = Regexp.new("\\b" + lang + "\\b")
