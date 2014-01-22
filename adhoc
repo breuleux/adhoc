@@ -35,7 +35,11 @@ elsif candidates.count > 1
 else
   candidates.each do |filename|
     filename = filename.strip
-    system("#{path}/#{filename}", *args)
+    script = "#{path}/#{filename}"
+    rval = system(script, *args)
+    if !rval
+      $stderr.puts "Could not execute script '#{script}'"
+    end
   end
 end
 

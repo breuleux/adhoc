@@ -26,8 +26,6 @@ class String
   end
 end
 
-
-
 def pr(orig, result)
   if result.kind_of?(Array)
     result.each do |z| puts z end
@@ -38,7 +36,7 @@ def pr(orig, result)
   end
 end
 
-def open(f)
+def _open(f)
   if f.kind_of?(String)
     begin
       File.open(f)
@@ -51,39 +49,40 @@ def open(f)
   end
 end
 
-def do_whole(command, files)
-  # Defines: all
-  files.each do |filename|
-    all = open(filename).read
-    pr(all, eval(command))
+def do_whole(command, file)
+  # Defines: all (string)
+  #          filename
+  all = file.read
+  pr(all, eval(command))
+end
+
+def do_lines(command, file)
+  # Defines: xs (array of lines)
+  #          filename
+  xs = file.readlines
+  pr(xs, eval(command))
+end
+
+def do_line(command, file)
+  # Defines: x (current line)
+  #          w (list of words)
+  #          filename
+  file.each do |x|
+    w = x.split
+    pr(x, eval(command))
   end
 end
 
-def do_lines(command, files)
-  # Defines: xs
+def main(command, files)
   files.each do |filename|
-    xs = open(filename).readlines
-    pr(xs, eval(command))
-  end
-end
-
-def do_line(command, files)
-  # Defines: x (current line) and w (list of words)
-  files.each do |filename|
-    open(filename).each do |x|
-      w = x.split
-      pr(x, eval(command))
+    file = _open(filename)
+    if command.match(/\ball\b/)
+      do_whole(command, file)
+    elsif command.match(/\bxs\b/)
+      do_lines(command, file)
+    else
+      do_line(command, file)
     end
-  end
-end
-
-def main(command, args)
-  if command.match(/\ball\b/)
-    do_whole(command, args)
-  elsif command.match(/\bxs\b/)
-    do_lines(command, args)
-  else
-    do_line(command, args)
   end
 end
 
