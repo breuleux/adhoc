@@ -29,7 +29,7 @@ end
 def pr(orig, result)
   if result.kind_of?(Array)
     result.each do |z| puts z end
-  elsif result.kind_of?(TrueClass)
+  elsif result === true
     puts orig
   elsif result
     puts result
@@ -49,21 +49,21 @@ def _open(f)
   end
 end
 
-def do_whole(command, file)
-  # Defines: all (string)
+def do_whole(command, filename, file)
+  # Defines: text (string)
   #          filename
-  all = file.read
-  pr(all, eval(command))
+  text = file.read
+  pr(text, eval(command))
 end
 
-def do_lines(command, file)
+def do_lines(command, filename, file)
   # Defines: xs (array of lines)
   #          filename
   xs = file.readlines
   pr(xs, eval(command))
 end
 
-def do_line(command, file)
+def do_line(command, filename, file)
   # Defines: x (current line)
   #          w (list of words)
   #          filename
@@ -76,12 +76,12 @@ end
 def main(command, files)
   files.each do |filename|
     file = _open(filename)
-    if command.match(/\ball\b/)
-      do_whole(command, file)
+    if command.match(/\btext\b/)
+      do_whole(command, filename, file)
     elsif command.match(/\bxs\b/)
-      do_lines(command, file)
+      do_lines(command, filename, file)
     else
-      do_line(command, file)
+      do_line(command, filename, file)
     end
   end
 end

@@ -37,8 +37,11 @@ else
     filename = filename.strip
     script = "#{path}/#{filename}"
     rval = system(script, *args)
-    if !rval
-      $stderr.puts "Could not execute script '#{script}'"
+    if !rval and $? != 256 # exit code 1
+      $stderr.puts "Error executing script '#{script}'"
+      if $?>>8 >= 126
+        $stderr.puts "Does the file exist and are the permission bits set for execute?"
+      end
     end
   end
 end
