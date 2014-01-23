@@ -26,13 +26,19 @@ class String
   end
 end
 
-def pr(orig, result)
+class Array
+  def sum
+    inject{|sum,x| sum + x }
+  end
+end
+
+def pr(orig, result, &acc)
   if result.kind_of?(Array)
-    result.each do |z| puts z end
+    result.each do |z| acc.call(z) end
   elsif result === true
-    puts orig
+    acc.call(orig)
   elsif result
-    puts result
+    acc.call(result)
   end
 end
 
@@ -49,80 +55,111 @@ def _open(f)
   end
 end
 
-def do_whole(command, filename, file)
-  # Defines: text (string)
-  #          xs (array of lines)
+def do_line(command, filename, file, &acc)
+  # Defines: line (current line)
   #          filename
-  text = file.read
-  xs = text.split("\n")
-  pr(text, eval(command))
-end
-
-def do_line(command, filename, file)
-  # Defines: x (current line)
-  #          w (list of words)
-  #          filename
-  file.each do |x|
-    w = x.split
-    pr(x, eval(command))
+  file.each do |line|
+    pr(line, line.instance_eval(command), &acc)
   end
 end
 
-def main(command, files)
-  files.each do |filename|
-    file = _open(filename)
-    if command.match(/\btext\b/) or command.match(/\bxs\b/)
-      do_whole(command, filename, file)
-    else
-      do_line(command, filename, file)
+def main(line_command, lines_commands, files)
+  line_command ||= 'self'
+  if lines_commands.empty?
+    files.each do |filename|
+      file = _open(filename)
+      do_line(line_command, filename, file) do |x| puts x end
     end
+  else
+    lines = []
+    files.each do |filename|
+      file = _open(filename)
+      do_line(line_command, filename, file) do |x| lines.push(x) end
+    end
+    orig = nil
+    lines_commands.each do |cmd|
+      orig = lines
+      lines = lines.instance_eval(cmd)
+    end
+    pr(orig, lines) do |x| puts x end
   end
 end
 
-command, *args = ARGV
+line_command = nil
+lines_commands = []
+args = []
 
-if !command or command =~ /-?-?help/
-  puts <<EOF
-adhoc --ruby <command> [file] ...
-How to use:
+for arg in ARGV
+  if arg =~ /^:.*/
+    lines_commands.push(arg[1..-1])
+  elsif arg =~ /^\\:.*/
+    args.push(arg[1..-1])
+  elsif lines_commands.empty? and line_command === nil
+    line_command = arg
+  else
+    args.push(arg)
+  end
+end
 
-The variable 'filename' always contains the name of the current file
-(or a handle to stdin, if no files were provided).
+args = [STDIN] if args.empty?
 
-If <command> contains a variable named 'text' or 'xs':
-  * <command> will be executed only once
-  * Variable 'text' contains the whole file as a string.
-  * Variable 'xs' contains a list of lines.
-  * Result of 'eval(command)' is printed:
+if (!line_command or line_command =~ /-?-?help/) and lines_commands.empty?
+
+    puts <<EOF
+adhoc --ruby <command> [:<command>] ... [file] ...
+
+<command> is run once for every line of every file using
+
+    line.instance_eval(<command>)
+
+The `line` variable is available, but you can also use String methods
+unqualified.
+
+If the result is...
     * string?       => printed on a line.
     * array?        => each element printed on a line.
     * true          => 'text' is printed.
     * false or nil  => nothing is printed.
 
-Otherwise:
-  * <command> will be executed once per line
-  * Variable 'x' contains the current line
-  * Variable 'w' contains a list of words (for convenience)
-  * Result of 'eval(command)' is printed:
-    * string?       => printed on a line.
-    * array?        => each element printed on a line.
-    * true          => 'x' is printed.
-    * false or nil  => nothing is printed.
+If there is at least one :<command>, then the results are not printed
+but are instead accumulated in a list called `lines`. Each :<command>
+is run once using
+
+    lines.instance_eval(<command>)
+
+Note: the variable 'filename' contains the name of the file (or a
+handle to stdin, if no files were provided).
 
 EXAMPLES:
-  adhoc --ruby 'x.gsub(//)'
-  adhoc --ruby 
-  adhoc --ruby 
-  adhoc --ruby 
-  adhoc --ruby 
-  adhoc --ruby 
-  adhoc --ruby 
+  # Print the first whitespace-separated field of each line
+  adhoc --ruby line.split[1]
+  adhoc --ruby split[1]       # line is the implicit subject, so you can leave it out
+  adhoc --ruby split(":")[1]  # first colon-separated field
+
+  # Sort numerically by fifth field
+  adhoc --ruby ':sort_by{|x| x.split[4].to_i}'
+
+  # Select lines that contain numbers
+  adhoc --ruby 'line if match?(/\d+/)'
+  adhoc --ruby ':select{|x| x.match?(/\d+/)}'
+
+  # Print and sort all different words of a file
+  adhoc --ruby split :sort.uniq
+
+  # Word count
+  adhoc --ruby :join.split.count
+  adhoc --ruby split.count :sum
+
+EXTENSIONS
+  Extra methods for String class:
+    bold, black, red, green, yellow, blue, magenta, cyan, white
+  Extra methods for Array class:
+    sum
 
 EOF
 
-elsif args.empty?
-  main(command, [STDIN])
 else
-  main(command, args)
+  main(line_command, lines_commands, args)
 end
+
 
