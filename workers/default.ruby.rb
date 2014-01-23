@@ -51,16 +51,11 @@ end
 
 def do_whole(command, filename, file)
   # Defines: text (string)
+  #          xs (array of lines)
   #          filename
   text = file.read
+  xs = text.split("\n")
   pr(text, eval(command))
-end
-
-def do_lines(command, filename, file)
-  # Defines: xs (array of lines)
-  #          filename
-  xs = file.readlines
-  pr(xs, eval(command))
 end
 
 def do_line(command, filename, file)
@@ -76,10 +71,8 @@ end
 def main(command, files)
   files.each do |filename|
     file = _open(filename)
-    if command.match(/\btext\b/)
+    if command.match(/\btext\b/) or command.match(/\bxs\b/)
       do_whole(command, filename, file)
-    elsif command.match(/\bxs\b/)
-      do_lines(command, filename, file)
     else
       do_line(command, filename, file)
     end
@@ -87,7 +80,47 @@ def main(command, files)
 end
 
 command, *args = ARGV
-if args.empty?
+
+if !command or command =~ /-?-?help/
+  puts <<EOF
+adhoc --ruby <command> [file] ...
+How to use:
+
+The variable 'filename' always contains the name of the current file
+(or a handle to stdin, if no files were provided).
+
+If <command> contains a variable named 'text' or 'xs':
+  * <command> will be executed only once
+  * Variable 'text' contains the whole file as a string.
+  * Variable 'xs' contains a list of lines.
+  * Result of 'eval(command)' is printed:
+    * string?       => printed on a line.
+    * array?        => each element printed on a line.
+    * true          => 'text' is printed.
+    * false or nil  => nothing is printed.
+
+Otherwise:
+  * <command> will be executed once per line
+  * Variable 'x' contains the current line
+  * Variable 'w' contains a list of words (for convenience)
+  * Result of 'eval(command)' is printed:
+    * string?       => printed on a line.
+    * array?        => each element printed on a line.
+    * true          => 'x' is printed.
+    * false or nil  => nothing is printed.
+
+EXAMPLES:
+  adhoc --ruby 'x.gsub(//)'
+  adhoc --ruby 
+  adhoc --ruby 
+  adhoc --ruby 
+  adhoc --ruby 
+  adhoc --ruby 
+  adhoc --ruby 
+
+EOF
+
+elsif args.empty?
   main(command, [STDIN])
 else
   main(command, args)
