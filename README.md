@@ -58,7 +58,7 @@ you want to use.
   * You can also set the `$ADHOCPATH` environment variable to whatever
     path the scripts are in.
 
-* Put `adhoc` somewhere accessible from your `$PATH`.
+* Put `bin/adhoc` somewhere accessible from your `$PATH`.
 
 * Use it!
 
