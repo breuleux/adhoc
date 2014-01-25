@@ -28,6 +28,13 @@ print all unique occurrences (sorted), you could do:
     adhoc --rb split[0] :uniq.sort file.txt
     adhoc --py 'line.split()[0]' ':sorted(set(lines))' file.txt
 
+The point of having multiple languages is to make sure as many people
+as possible have access to a language they are already familiar with
+and to promote code reuse: if you have some helper functions that you
+would like to use with adhoc and that your language is supported, you
+can add them very easily. The same goes for external libraries and
+packages.
+
 
 Languages available
 -------------------
@@ -35,8 +42,8 @@ Languages available
 * Ruby (**default**): `--ruby`, `--rb`
 * Python: `--python`, `--py`
 
-These are the two I have implemented myself. Feel free to add more
-(and tell me if you do, so that I can add them to the repo).
+These are the two I have implemented myself. Feel free to add more and
+do pull requests!
 
 
 Installing
