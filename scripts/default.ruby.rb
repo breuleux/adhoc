@@ -140,8 +140,9 @@ EXAMPLES:
   adhoc --rb ':sort_by{|x| x.split[4].to_i}'
 
   # Select lines that contain numbers
-  adhoc --rb 'line if match?(/\d+/)'
-  adhoc --rb ':select{|x| x.match?(/\d+/)}'
+  adhoc --rb 'match?(/\d+/)'
+  adhoc --rb 'line if match(/\d+/)'
+  adhoc --rb ':select{|x| x.match(/\d+/)}'
 
   # Print and sort all different words of a file
   adhoc --rb split :sort.uniq

@@ -8,7 +8,8 @@ Picture the following situation:
   comma-separated field of each line of a file.
 
 * You don't know or remember how to do it on the command line. Maybe
-  you don't know `cut` exists or don't know what the flags are.
+  you don't know `cut` exists or don't know what the flags are. Or
+  maybe there is no easy solution at all!
 
 * You know how to do it in some programming language that you are
   proficient in (but it requires a good deal of boilerplate).
@@ -96,9 +97,10 @@ It is then your job to implement the interface:
 
 The *line command* must be executed on each line. If there are no
 global commands, then the result of the command must be printed,
-otherwise it is accumulated in a list.
+otherwise it is accumulated in a list. If there is no line command,
+assume the identity function on each line.
 
-The *global command* is executed on the lines accumulated from all
+The *global command* is executed on that list, accumulated from all
 files. Its result is printed. You don't have to accept more than one
 global command, but if you do, they should be executed one after the
 other, each on the result of the previous.
@@ -130,8 +132,9 @@ unqualified. Same for global commands and the list of lines.
     adhoc --rb ':sort_by{|x| x.split[4].to_i}'
   
     # Select lines that contain numbers
-    adhoc --rb 'line if match?(/\d+/)'
-    adhoc --rb ':select{|x| x.match?(/\d+/)}'
+    adhoc --rb 'match?(/\d+/)'
+    adhoc --rb 'line if match(/\d+/)'
+    adhoc --rb ':select{|x| x.match(/\d+/)}'
   
     # Print and sort all different words of a file
     adhoc --rb split :sort.uniq
