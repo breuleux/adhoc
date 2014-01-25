@@ -45,7 +45,7 @@ Installing
 You will need Ruby to be installed, in addition to the language that
 you want to use.
 
-* Copy, move or link the `workers` directory into `$HOME/.adhoc`
+* Copy, move or link the `scripts` directory into `$HOME/.adhoc`
 
   * You can also set the `$ADHOCPATH` environment variable to whatever
     path the scripts are in.

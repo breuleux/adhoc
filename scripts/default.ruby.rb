@@ -106,7 +106,7 @@ args = [STDIN] if args.empty?
 if (!line_command or line_command =~ /-?-?help/) and lines_commands.empty?
 
     puts <<EOF
-adhoc --ruby <command> [:<command>] ... [file] ...
+adhoc --rb <command> [:<command>] ... [file] ...
 
 <command> is run once for every line of every file using
 
@@ -132,23 +132,23 @@ handle to stdin, if no files were provided).
 
 EXAMPLES:
   # Print the first whitespace-separated field of each line
-  adhoc --ruby line.split[1]
-  adhoc --ruby split[1]       # line is the implicit subject, so you can leave it out
-  adhoc --ruby split(":")[1]  # first colon-separated field
+  adhoc --rb line.split[1]
+  adhoc --rb split[1]       # line is the implicit subject, so you can leave it out
+  adhoc --rb split(":")[1]  # first colon-separated field
 
   # Sort numerically by fifth field
-  adhoc --ruby ':sort_by{|x| x.split[4].to_i}'
+  adhoc --rb ':sort_by{|x| x.split[4].to_i}'
 
   # Select lines that contain numbers
-  adhoc --ruby 'line if match?(/\d+/)'
-  adhoc --ruby ':select{|x| x.match?(/\d+/)}'
+  adhoc --rb 'line if match?(/\d+/)'
+  adhoc --rb ':select{|x| x.match?(/\d+/)}'
 
   # Print and sort all different words of a file
-  adhoc --ruby split :sort.uniq
+  adhoc --rb split :sort.uniq
 
   # Word count
-  adhoc --ruby :join.split.count
-  adhoc --ruby split.count :sum
+  adhoc --rb :join.split.count
+  adhoc --rb split.count :sum
 
 EXTENSIONS
   Extra methods for String class:

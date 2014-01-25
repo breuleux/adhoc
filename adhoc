@@ -3,7 +3,7 @@
 path = ENV["ADHOCPATH"] || File.expand_path("~/.adhoc")
 
 if !File.exists?(path)
-  $stderr.puts "Could not find the directory for workers"
+  $stderr.puts "Could not find the directory for scripts"
   $stderr.puts "Searched in #{path}"
   $stderr.puts "You can specify an alternate path with the environment variable $ADHOCPATH"
   exit 1
@@ -11,7 +11,7 @@ end
 
 lang, *rest = ARGV
 
-if lang =~ /--.*/
+if lang =~ /--.*/ and lang != "--help"
   lang = lang[2..-1]
   lang = "default" if lang == ""
   args = rest
@@ -27,11 +27,11 @@ end
 
 if candidates.empty?
   $stderr.puts "Could not find language '#{lang}'"
-  $stderr.puts "Available workers can be found in #{path}"
+  $stderr.puts "Available scripts can be found in #{path}"
 elsif candidates.count > 1
   $stderr.puts "There are more than one worker for '#{lang}':"
   $stderr.puts candidates
-  $stderr.puts "Available workers can be found in #{path}"
+  $stderr.puts "Available scripts can be found in #{path}"
 else
   candidates.each do |filename|
     filename = filename.strip

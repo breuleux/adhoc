@@ -20,7 +20,7 @@ def pr(orig, x, do):
             if x is True:
                 do(orig)
             elif x not in (None, False):
-                do(str(x))
+                do(x)
 
 def _open(f):
     if isinstance(f, str):
@@ -58,6 +58,10 @@ def main(line_command, lines_commands, files):
         orig = None
         for cmd in lines_commands:
             orig = lines
+            try:
+                text = "".join(lines)
+            except TypeError:
+                text = None
             lines = eval(cmd)
         pr(orig, lines, soft_newline)
 
@@ -82,7 +86,53 @@ if __name__ == '__main__':
     if ((not line_command or line_command in ["help", "-help", "--help"])
         and not lines_commands):
         print """
-HELP
+adhoc --py <command> [:<command>] ... [file] ...
+
+<command> is run once for every line of every file using
+
+    eval(<command>)
+
+The current line is placed in the `line` variable.
+
+If the result is...
+    * string?       => printed on a line.
+    * array?        => each element printed on a line.
+    * True          => 'text' is printed.
+    * False or None => nothing is printed.
+
+If there is at least one :<command>, then the results are not printed
+but are instead accumulated in a list called `lines`. Each :<command>
+is run once using
+
+    eval(<command>)
+
+The variable `lines` contains the list of lines; the variable `text`
+contains the result of `"".join(lines)`.
+
+Note: the variable 'filename' contains the name of the file (or a
+handle to stdin, if no files were provided).
+
+EXAMPLES:
+  # Print the first whitespace-separated field of each line
+  adhoc --py 'line.split()[1]'
+  adhoc --py 'line.split(":")[1]'  # first colon-separated field
+
+  # Sort numerically by fifth field
+  adhoc --py ':sorted(lines, key = lambda k: int(k.split()[4]))'
+
+  # Select lines that contain numbers
+  adhoc --py 're.findall(r"\d+", line) and line'
+
+  # Print and sort all different words of a file
+  adhoc --py 'sorted(set(text.split()))'
+
+  # Word count
+  adhoc --py ':len(text.split())'
+  adhoc --py 'len(line.split())' ':sum(lines)'
+
+
+Imported packages:
+    re, sys, os
 """
     else:
         main(line_command, lines_commands, args)
