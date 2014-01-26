@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require("date")
+
 # Extensions to the string class
 class String
   # Bold, color, etc. on terminal

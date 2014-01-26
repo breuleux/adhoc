@@ -34,9 +34,11 @@ def _open(f):
 
 def do_line(command, filename, f, do):
     """
-    Defines: x (current line)
+    Defines: line (current line)
+             x (current line)
              w (list of words)
              filename
+             f (the actual file handle)
     """
     for line in f.readlines():
         x = line
